@@ -66,7 +66,14 @@ internal/bundler/      marker injection + zip packing
 internal/config/       theme manifest structs
 internal/validator/    HTML/CSS/JS checks + 256 KiB limit
 templates/             default.{html,css,js} boilerplate
+AGENTS.md              guidance for AI agents building acify commands
 ```
+
+## Agent guidance
+
+`AGENTS.md` describes the CLI's flags, defaults, and invariants so an AI agent
+can build the correct `acify` command from a user's theme preferences without
+extra assistance.
 
 ## License
 
