@@ -11,10 +11,10 @@ const (
 	markerSpinner    = "/* acify:spinner */"
 )
 
-// InjectCSS replaces the background and spinner markers in css with data-URI
-// declarations. Pass empty strings to leave the template default in place.
-// overlay controls the dark tint over a background image (0.0-1.0); accent
-// overrides the --accent CSS variable when non-empty.
+// InjectCSS replaces the background and spinner markers in css with data-URI declarations.
+// Pass empty strings to leave the template default in place,
+// overlay controls the dark tint over a background image (0.0-1.0),
+// accent overrides the --accent CSS variable when non-empty.
 func InjectCSS(css, background, spinner, accent string, overlay float64) string {
 	if background != "" {
 		rule := fmt.Sprintf("background-image: linear-gradient(rgba(8,8,10,%.2f), rgba(8,8,10,%.2f)), url(%s);",
