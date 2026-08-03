@@ -126,10 +126,6 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	if opts.inline {
-		fmt.Printf("background: %s\n", bgURI)
-		if spURI != "" {
-			fmt.Printf("spinner: %s\n", spURI)
-		}
 		fmt.Println("--- css ---")
 		fmt.Println(css)
 		return nil
