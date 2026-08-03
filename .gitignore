@@ -8,6 +8,10 @@
 *.so
 *.dylib
 *.zip
+
+# acify binary built without an extension (go build -o acify)
+/acify
+
 # Test binary, built with `go test -c`
 *.test
 

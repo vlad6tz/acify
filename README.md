@@ -23,7 +23,7 @@ git clone https://github.com/vlad6tz/acify.git
 cd acify
 
 # build the binary
-go build -o acify ./cmd/helper
+go build -o acify.exe ./cmd/helper
 ```
 
 ## Usage
