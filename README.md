@@ -15,7 +15,14 @@ limit required by detect.ac.
 
 ## Install
 
+Requires [Go 1.25+](https://go.dev/dl).
+
 ```sh
+# clone the repo
+git clone https://github.com/vlad6tz/acify.git
+cd acify
+
+# build the binary
 go build -o acify ./cmd/helper
 ```
 
