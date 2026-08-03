@@ -74,12 +74,14 @@ func nonEmpty(kind, s string) error {
 }
 
 // checkBalanced verifies that braces, brackets, and parentheses are balanced
-// and correctly nested, skipping quoted strings and line/block comments.
+// and correctly nested, skipping quoted strings, line/block comments, and the
+// contents of url(...) functions (which may hold base64 data URIs).
 func checkBalanced(kind, s string) error {
 	pairs := map[rune]rune{'{': '}', '[': ']', '(': ')'}
 	stack := []rune{}
 	var quote rune
 	comment := 0
+	urlDepth := 0
 	runes := []rune(s)
 	for i := 0; i < len(runes); i++ {
 		c := runes[i]
@@ -102,29 +104,43 @@ func checkBalanced(kind, s string) error {
 			continue
 		}
 		switch {
-		case c == '/' && i+1 < len(runes) && runes[i+1] == '/':
+		case c == '/' && i+1 < len(runes) && runes[i+1] == '/' && urlDepth == 0:
 			for i < len(runes) && runes[i] != '\n' {
 				i++
 			}
-		case c == '/' && i+1 < len(runes) && runes[i+1] == '*':
+		case c == '/' && i+1 < len(runes) && runes[i+1] == '*' && urlDepth == 0:
 			comment = 1
 			i++
 		case c == '\'' || c == '"' || c == '`':
 			quote = c
 		default:
 			if close, ok := pairs[c]; ok {
+				if c == '(' && isURLToken(runes, i) {
+					urlDepth++
+				}
 				stack = append(stack, close)
 				continue
 			}
+			if c != '}' && c != ']' && c != ')' {
+				continue
+			}
+			matched := -1
 			for j := len(stack) - 1; j >= 0; j-- {
 				if stack[j] == c {
-					if j != len(stack)-1 {
-						return fmt.Errorf("%s: mismatched %q", kind, string(c))
-					}
-					stack = stack[:j]
+					matched = j
 					break
 				}
 			}
+			if matched < 0 {
+				return fmt.Errorf("%s: unmatched %q", kind, string(c))
+			}
+			if matched != len(stack)-1 {
+				return fmt.Errorf("%s: mismatched %q", kind, string(c))
+			}
+			if c == ')' && urlDepth > 0 {
+				urlDepth--
+			}
+			stack = stack[:matched]
 		}
 	}
 	if quote != 0 {
@@ -137,4 +153,28 @@ func checkBalanced(kind, s string) error {
 		return fmt.Errorf("%s: unbalanced delimiter %q", kind, string(stack[len(stack)-1]))
 	}
 	return nil
+}
+
+// isURLToken reports whether the rune at position i of runes is the '(' that
+// opens a url( function, e.g. in url(data:image/png;base64,...).
+func isURLToken(runes []rune, i int) bool {
+	if i >= len(runes) || runes[i] != '(' {
+		return false
+	}
+	j := i - 1
+	for j >= 0 && (runes[j] == ' ' || runes[j] == '\t' || runes[j] == '\n' || runes[j] == '\r') {
+		j--
+	}
+	if j < 0 {
+		return false
+	}
+	k := j
+	for k >= 0 && isIdent(runes[k]) {
+		k--
+	}
+	return strings.EqualFold(string(runes[k+1:j+1]), "url")
+}
+
+func isIdent(r rune) bool {
+	return r == '-' || r == '_' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9'
 }

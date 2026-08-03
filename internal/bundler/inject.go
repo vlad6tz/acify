@@ -17,7 +17,7 @@ const (
 // accent overrides the --accent CSS variable when non-empty.
 func InjectCSS(css, background, spinner, accent string, overlay float64) string {
 	if background != "" {
-		rule := fmt.Sprintf("background-image: linear-gradient(rgba(8,8,10,%.2f), rgba(8,8,10,%.2f)), url(%s);",
+		rule := fmt.Sprintf("background-image: linear-gradient(rgba(8,8,10,%.2f), rgba(8,8,10,%.2f)), url(\"%s\");",
 			clamp(overlay), clamp(overlay), background)
 		css = replaceOrAppend(css, markerBackground, "  "+rule, "body { "+rule+" }")
 	} else {
@@ -25,7 +25,7 @@ func InjectCSS(css, background, spinner, accent string, overlay float64) string 
 	}
 
 	if spinner != "" {
-		decl := "background: url(" + spinner + ") center/contain no-repeat; border: none; animation: none; filter: none; box-shadow: none;"
+		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; animation: none; filter: none; box-shadow: none;"
 		css = replaceOrAppend(css, markerSpinner, "  "+decl, ".spinner { "+decl+" }")
 	} else {
 		css = dropMarker(css, markerSpinner)
