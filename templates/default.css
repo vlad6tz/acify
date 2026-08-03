@@ -32,6 +32,7 @@ body {
   background-size: cover, cover, cover;
   background-position: center, center, center;
   animation: drift 30s ease-in-out infinite alternate;
+  /* acify:background */
 }
 @keyframes drift {
   0%   { background-size: cover, cover, cover; background-position: center, center, 50% 46%; }
@@ -239,6 +240,7 @@ body {
   margin-bottom: 18px;
   animation: spin 0.9s linear infinite;
   filter: drop-shadow(0 0 6px var(--accent-glow));
+  /* acify:spinner */
 }
 .scanner-title {
   font-size: 19px; font-weight: 700; margin: 0 0 5px; color: var(--fg);

@@ -1,8 +1,6 @@
 // Package config defines the theme manifest structures.
 package config
 
-import "os"
-
 // Theme is the manifest for a custom style bundle.
 type Theme struct {
 	Name    string
@@ -26,18 +24,11 @@ type Option struct {
 	Choices []string
 }
 
-// Default returns a Theme populated from env-provided values, suitable as a
-// starting manifest for a new style.
+// Default returns a Theme with the standard defaults, suitable as a starting
+// manifest for a new style.
 func Default() Theme {
 	return Theme{
-		Name:    valueOr("ACIFY_NAME", "detect"),
-		Version: valueOr("ACIFY_VERSION", "1.0.0"),
+		Name:    "acify",
+		Version: "1.0.0",
 	}
-}
-
-func valueOr(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
 }

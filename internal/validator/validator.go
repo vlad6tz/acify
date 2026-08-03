@@ -10,6 +10,18 @@ import (
 	"golang.org/x/net/html"
 )
 
+// MaxStyleBytes is the detect.ac per-file limit (strictly under 256 KiB).
+const MaxStyleBytes = 256 * 1024
+
+// Size reports an error when n is not strictly below the per-file limit.
+func Size(kind string, n int) error {
+	if n >= MaxStyleBytes {
+		return fmt.Errorf("%s is %d bytes, which is not under the %d-byte (256 KiB) limit",
+			kind, n, MaxStyleBytes)
+	}
+	return nil
+}
+
 // File checks that the file exists and is not empty.
 func File(path string) error {
 	info, err := os.Stat(path)
