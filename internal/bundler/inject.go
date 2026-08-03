@@ -15,7 +15,7 @@ const (
 // Pass empty strings to leave the template default in place,
 // overlay controls the dark tint over a background image (0.0-1.0),
 // accent overrides the --accent CSS variable when non-empty.
-func InjectCSS(css, background, spinner, accent string, overlay float64) string {
+func InjectCSS(css, background, spinner, accent string, overlay float64, rotate bool) string {
 	if background != "" {
 		rule := fmt.Sprintf("background-image: linear-gradient(rgba(8,8,10,%.2f), rgba(8,8,10,%.2f)), url(\"%s\");",
 			clamp(overlay), clamp(overlay), background)
@@ -24,10 +24,16 @@ func InjectCSS(css, background, spinner, accent string, overlay float64) string 
 		css = dropMarker(css, markerBackground)
 	}
 
-	if spinner != "" {
-		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; animation: none; filter: none; box-shadow: none;"
+	switch {
+	case spinner != "" && rotate:
+		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none; box-shadow: none;"
 		css = replaceOrAppend(css, markerSpinner, "  "+decl, ".spinner { "+decl+" }")
-	} else {
+	case spinner != "" && !rotate:
+		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none; box-shadow: none; animation: none;"
+		css = replaceOrAppend(css, markerSpinner, "  "+decl, ".spinner { "+decl+" }")
+	case spinner == "" && !rotate:
+		css = replaceOrAppend(css, markerSpinner, "  animation: none;", ".spinner { animation: none; }")
+	default: // no spinner, rotating -> leave the template wireframe as-is
 		css = dropMarker(css, markerSpinner)
 	}
 

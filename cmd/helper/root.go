@@ -17,6 +17,7 @@ import (
 type options struct {
 	background   string
 	spinner      string
+	noSpin       bool
 	out          string
 	templates    string
 	name         string
@@ -48,6 +49,7 @@ func newRootCmd() *cobra.Command {
 	flags := cmd.Flags()
 	flags.StringVarP(&opts.background, "background", "b", "", "required path to the background image")
 	flags.StringVarP(&opts.spinner, "spinner", "s", "", "optional path to the spinner image")
+	flags.BoolVar(&opts.noSpin, "no-spin", false, "disable spinner rotation")
 	flags.StringVarP(&opts.out, "out", "o", ".", "directory in which to drop the bundle zip")
 	flags.StringVar(&opts.templates, "templates", "templates", "directory containing templates/default.{html,css,js}")
 	flags.StringVar(&opts.name, "name", "", "theme name (default: acify)")
@@ -93,7 +95,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 	warnNearLimit(bgURI, spURI)
 
-	css = bundler.InjectCSS(css, bgURI, spURI, opts.accent, opts.overlay)
+	css = bundler.InjectCSS(css, bgURI, spURI, opts.accent, opts.overlay, !opts.noSpin)
 	if opts.customCSS != "" {
 		extra, err := os.ReadFile(opts.customCSS)
 		if err != nil {
@@ -155,6 +157,9 @@ func run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  background: %s\n", opts.background)
 		if opts.spinner != "" {
 			fmt.Printf("  spinner: %s\n", opts.spinner)
+		}
+		if opts.noSpin {
+			fmt.Println("  no-spin: true")
 		}
 	}
 	return nil

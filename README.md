@@ -31,6 +31,7 @@ go build -o acify.exe ./cmd/helper
 ```sh
 acify -b background.png                      # required - build from a background image
 acify -b bg.png -s spinner.gif -o dist       # optional spinner + output directory
+acify -b bg.png -s spinner.gif --no-spin     # spinner image without rotation
 acify -b bg.png --name mine --version 1.2.0  # theme name / version in the zip filename
 ```
 
@@ -44,6 +45,7 @@ editor manually.
 | --- | --- | --- | --- |
 | `--background` | `-b` | *(required)* | Path to the background image |
 | `--spinner` | `-s` | | Optional spinner image |
+| `--no-spin` | | | Disable spinner rotation (spins by default) |
 | `--out` | `-o` | `.` | Directory for the bundle zip |
 | `--templates` | | `templates` | Dir containing `default.{html,css,js}` |
 | `--name` | | `acify` | Theme name (used in the zip filename) |
