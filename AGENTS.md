@@ -26,6 +26,7 @@ into `<name>-<version>.zip` for manual paste into the detect.ac theme editor.
 | `--validate-only` | | `false` | Validate templates/images/sizes, write no zip |
 | `--inline` | `-i` | `false` | Print data URIs + CSS instead of building |
 | `--verbose` | `-v` | `false` | Verbose output |
+| `--help` | `-h` | *(auto)* | Show usage and all flags (added by Cobra) |
 
 ## Command-building rules
 

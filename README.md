@@ -56,6 +56,7 @@ editor manually.
 | `--validate-only` | | | Check templates/images/sizes without writing a zip |
 | `--inline` | `-i` | | Print data URIs + CSS instead of building |
 | `--verbose` | `-v` | | Verbose output |
+| `--help` | `-h` | | Show usage and all flags (added by Cobra) |
 
 ## Project layout
 
@@ -74,6 +75,31 @@ AGENTS.md              guidance for AI agents building acify commands
 `AGENTS.md` describes the CLI's flags, defaults, and invariants so an AI agent
 can build the correct `acify` command from a user's theme preferences without
 extra assistance.
+
+## Contributing
+
+Contributions are welcome. To work on the tool locally:
+
+```sh
+# fork the repo on GitHub, then clone your fork
+git clone https://github.com/<your-username>/acify.git
+cd acify
+git remote add upstream https://github.com/vlad6tz/acify.git
+git checkout -b my-feature
+
+# build
+go build -o acify.exe ./cmd/helper
+
+# verify before submitting
+gofmt -l .
+go vet ./...
+go build ./...
+go test ./...
+```
+
+Run the checks above and add tests for any new behavior. Push your branch to
+your fork and open a pull request against `upstream`. When changing the CLI
+surface, keep `README.md` and `AGENTS.md` flag tables in sync.
 
 ## License
 
