@@ -23,6 +23,9 @@ into `<name>-<version>.zip` for manual paste into the detect.ac theme editor.
 | `--overlay` | | `0.4` | Dark tint over the background (0.0-1.0) |
 | `--accent` | | *(none)* | Override the `--accent` color, e.g. `#ff5c72` |
 | `--css` | | *(none)* | Append a custom CSS file to the bundle |
+| `--resize` | | *(none)* | Downscale the background to fit within `WxH`, e.g. `1280x720` (preserves aspect, never upscales) |
+| `--to` | | *(none)* | Re-encode the background (`png` or `jpeg`) |
+| `--quality` | | `85` | JPEG encoder quality (0-100), ignored for PNG |
 | `--validate-only` | | `false` | Validate templates/images/sizes, write no zip |
 | `--inline` | `-i` | `false` | Print data URIs + CSS instead of building |
 | `--verbose` | `-v` | `false` | Verbose output |
@@ -35,7 +38,10 @@ into `<name>-<version>.zip` for manual paste into the detect.ac theme editor.
 - Prefer short flags (`-b`, `-s`). Leave anything the user did not mention unset
   - the defaults are safe.
 - Validate inputs before emitting: `--overlay` must be between 0.0 and 1.0;
-  `--name` and `--version` feed the zip filename.
+  `--quality` between 0 and 100; `--to` is `png` or `jpeg`; `--resize` is
+  `WxH`; `--name` and `--version` feed the zip filename.
+- Suggest `--resize`/`--to`/`--quality` when a large image may not fit the
+  256 KiB per-file budget.
 - Spinner rotates by default. Only add `--no-spin` when the user wants a
   non-rotating spinner.
 - Contract: every file stays strictly under 256 KiB; the zip has exactly 3

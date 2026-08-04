@@ -2,6 +2,7 @@ package asset
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"image"
 	stddraw "image/draw"
@@ -14,27 +15,54 @@ import (
 
 // ProcessOptions controls how an image is re-encoded.
 type ProcessOptions struct {
-	// MaxW and MaxH bound the image to fit within a box, preserving aspect
-	// ratio. Zero values are ignored.
+	// MaxW and MaxH bound the image within a box, preserving aspect ratio.
+	// Zero values are ignored.
 	MaxW, MaxH int
-	// Format is "png" or "jpeg". Empty keeps the original format.
+	// Format re-encodes to "png" or "jpeg" when non-empty. Empty keeps the
+	// original format when it can be encoded, otherwise falls back to png.
 	Format string
 	// Quality is the JPEG encoder quality (0-100). Ignored for PNG.
 	Quality int
 }
 
+// Optimize decodes the image at path, applies the processing options, and
+// returns the resulting data URI plus a human-readable summary of what was
+// done (e.g. "jpeg 640x360 q80"). When opts is empty the file is inlined
+// unchanged.
+func Optimize(path string, opts ProcessOptions) (uri string, report string, err error) {
+	if opts == (ProcessOptions{}) {
+		uri, err := ImageDataURI(path)
+		return uri, "", err
+	}
+
+	data, dims, format, err := Process(path, opts)
+	if err != nil {
+		return "", "", err
+	}
+	mime := "image/" + format
+	uri = fmt.Sprintf("data:%s;base64,%s", mime, base64.StdEncoding.EncodeToString(data))
+
+	if format == "jpeg" {
+		report = fmt.Sprintf("jpeg %dx%d q%d", dims.X, dims.Y, opts.Quality)
+	} else {
+		report = fmt.Sprintf("png %dx%d", dims.X, dims.Y)
+	}
+	return uri, report, nil
+}
+
 // Process reads the image at path, optionally resizes and re-encodes it, and
-// returns the encoded bytes plus the resulting dimensions.
-func Process(path string, opts ProcessOptions) ([]byte, image.Point, error) {
+// returns the encoded bytes, the resulting dimensions, and the format the
+// bytes were actually encoded as ("png" or "jpeg").
+func Process(path string, opts ProcessOptions) ([]byte, image.Point, string, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, image.Point{}, err
+		return nil, image.Point{}, "", err
 	}
 	defer f.Close()
 
 	src, format, err := image.Decode(f)
 	if err != nil {
-		return nil, image.Point{}, err
+		return nil, image.Point{}, "", err
 	}
 	bounds := src.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
@@ -53,6 +81,10 @@ func Process(path string, opts ProcessOptions) ([]byte, image.Point, error) {
 	if opts.Format != "" && opts.Format != format {
 		format = opts.Format
 	}
+	// Go can only encode png/jpeg; anything else decodes to png.
+	if format != "png" && format != "jpeg" {
+		format = "png"
+	}
 
 	var buf bytes.Buffer
 	switch format {
@@ -69,12 +101,12 @@ func Process(path string, opts ProcessOptions) ([]byte, image.Point, error) {
 	case "png":
 		err = png.Encode(&buf, out)
 	default:
-		return nil, image.Point{}, fmt.Errorf("unsupported format %q", format)
+		return nil, image.Point{}, "", fmt.Errorf("unsupported format %q", format)
 	}
 	if err != nil {
-		return nil, image.Point{}, err
+		return nil, image.Point{}, "", err
 	}
-	return buf.Bytes(), image.Pt(w, h), nil
+	return buf.Bytes(), image.Pt(w, h), format, nil
 }
 
 // containFit scales a w x h box to fit within maxW x maxH, preserving aspect

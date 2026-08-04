@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -25,6 +26,9 @@ type options struct {
 	overlay      float64
 	accent       string
 	customCSS    string
+	resize       string
+	to           string
+	quality      int
 	validateOnly bool
 	inline       bool
 	verbose      bool
@@ -57,6 +61,9 @@ func newRootCmd() *cobra.Command {
 	flags.Float64Var(&opts.overlay, "overlay", 0.4, "dark tint over the background image for readability (0.0-1.0)")
 	flags.StringVar(&opts.accent, "accent", "", "override the --accent CSS color, e.g. #ff5c72")
 	flags.StringVar(&opts.customCSS, "css", "", "append a custom CSS file to the bundle")
+	flags.StringVar(&opts.resize, "resize", "", "downscale the background to fit within WxH, preserving aspect ratio (e.g. 1280x720)")
+	flags.StringVar(&opts.to, "to", "", "re-encode the background image (png or jpeg)")
+	flags.IntVar(&opts.quality, "quality", 85, "jpeg encoder quality (0-100), ignored for png")
 	flags.BoolVar(&opts.validateOnly, "validate-only", false, "validate templates, images, and sizes without writing a zip")
 	flags.BoolVarP(&opts.inline, "inline", "i", false, "print the generated data URIs and CSS instead of writing a zip")
 	flags.BoolVarP(&opts.verbose, "verbose", "v", false, "verbose output")
@@ -70,6 +77,21 @@ func newRootCmd() *cobra.Command {
 func run(cmd *cobra.Command, args []string) error {
 	if opts.overlay < 0 || opts.overlay > 1 {
 		return fmt.Errorf("--overlay must be between 0.0 and 1.0")
+	}
+	if opts.quality < 0 || opts.quality > 100 {
+		return fmt.Errorf("--quality must be between 0 and 100")
+	}
+	if opts.to != "" && opts.to != "png" && opts.to != "jpeg" {
+		return fmt.Errorf("--to must be either png or jpeg")
+	}
+	var maxW, maxH int
+	if opts.resize != "" {
+		m := regexp.MustCompile(`^(\d+)x(\d+)$`).FindStringSubmatch(opts.resize)
+		if m == nil {
+			return fmt.Errorf("--resize must be in WxH form, e.g. 1280x720")
+		}
+		fmt.Sscanf(m[1], "%d", &maxW)
+		fmt.Sscanf(m[2], "%d", &maxH)
 	}
 
 	theme := config.Default()
@@ -85,7 +107,8 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	bgURI, err := asset.Image(opts.background)
+	procOpts := asset.ProcessOptions{MaxW: maxW, MaxH: maxH, Format: opts.to, Quality: opts.quality}
+	bgURI, bgReport, err := asset.Optimize(opts.background, procOpts)
 	if err != nil {
 		return fmt.Errorf("background image: %w", err)
 	}
@@ -155,6 +178,9 @@ func run(cmd *cobra.Command, args []string) error {
 		outFile, len(data), len(html), len(css), len(js), theme.Name, theme.Version)
 	if opts.verbose {
 		fmt.Printf("  background: %s\n", opts.background)
+		if bgReport != "" {
+			fmt.Printf("  background re-encoded: %s\n", bgReport)
+		}
 		if opts.spinner != "" {
 			fmt.Printf("  spinner: %s\n", opts.spinner)
 		}

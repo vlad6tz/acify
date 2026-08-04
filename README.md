@@ -32,6 +32,7 @@ go build -o acify.exe ./cmd/helper
 acify -b background.png                      # required - build from a background image
 acify -b bg.png -s spinner.gif -o dist       # optional spinner + output directory
 acify -b bg.png -s spinner.gif --no-spin     # spinner image without rotation
+acify -b big.png --resize 1280x720 --to jpeg # fit the 256 KiB limit via resizing
 acify -b bg.png --name mine --version 1.2.0  # theme name / version in the zip filename
 ```
 
@@ -53,6 +54,9 @@ editor manually.
 | `--overlay` | | `0.4` | Dark tint over the background (0.0-1.0) |
 | `--accent` | | | Override the `--accent` color, e.g. `#ff5c72` |
 | `--css` | | | Append a custom CSS file to the bundle |
+| `--resize` | | | Downscale the background to fit within `WxH`, preserving aspect ratio (e.g. `1280x720`) |
+| `--to` | | | Re-encode the background image (`png` or `jpeg`) |
+| `--quality` | | `85` | JPEG encoder quality (0-100), ignored for PNG |
 | `--validate-only` | | | Check templates/images/sizes without writing a zip |
 | `--inline` | `-i` | | Print data URIs + CSS instead of building |
 | `--verbose` | `-v` | | Verbose output |

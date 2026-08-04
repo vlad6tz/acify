@@ -63,7 +63,7 @@ func TestProcessResizePng(t *testing.T) {
 	dir := t.TempDir()
 	p := writeTestImage(t, dir, "big.png", testImage(t, 200, 100))
 
-	data, dims, err := Process(p, ProcessOptions{MaxW: 100, MaxH: 100})
+	data, dims, _, err := Process(p, ProcessOptions{MaxW: 100, MaxH: 100})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func TestProcessNoUpscale(t *testing.T) {
 	dir := t.TempDir()
 	p := writeTestImage(t, dir, "small.png", testImage(t, 50, 30))
 
-	_, dims, err := Process(p, ProcessOptions{MaxW: 400, MaxH: 400})
+	_, dims, _, err := Process(p, ProcessOptions{MaxW: 400, MaxH: 400})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestProcessJpeg(t *testing.T) {
 	dir := t.TempDir()
 	p := writeTestImage(t, dir, "img.png", testImage(t, 64, 64))
 
-	data, dims, err := Process(p, ProcessOptions{Format: "jpeg", Quality: 80})
+	data, dims, _, err := Process(p, ProcessOptions{Format: "jpeg", Quality: 80})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +113,7 @@ func TestProcessQualityBounds(t *testing.T) {
 	p := writeTestImage(t, dir, "img.png", testImage(t, 32, 32))
 
 	for _, q := range []int{0, 150, -5} {
-		if _, _, err := Process(p, ProcessOptions{Format: "jpeg", Quality: q}); err != nil {
+		if _, _, _, err := Process(p, ProcessOptions{Format: "jpeg", Quality: q}); err != nil {
 			t.Fatalf("quality %d: %v", q, err)
 		}
 	}
