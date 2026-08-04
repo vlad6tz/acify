@@ -109,7 +109,10 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	procOpts := asset.ProcessOptions{MaxW: maxW, MaxH: maxH, Format: opts.to, Quality: opts.quality}
+	procOpts := asset.ProcessOptions{MaxW: maxW, MaxH: maxH, Format: opts.to}
+	if cmd.Flags().Changed("quality") {
+		procOpts.Quality = opts.quality
+	}
 	bgURI := ""
 	bgReport := ""
 	if opts.fit {
