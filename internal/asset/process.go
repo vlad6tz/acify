@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"image"
 	stddraw "image/draw"
+	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"os"
+	"path/filepath"
+	"strings"
 
 	xdraw "golang.org/x/image/draw" // for CatmullRom scaling
 )
@@ -109,6 +112,9 @@ func Fit(path string, budget int, base ProcessOptions) (uri string, report strin
 // returns the encoded bytes, the resulting dimensions, and the format the
 // bytes were actually encoded as ("png" or "jpeg").
 func Process(path string, opts ProcessOptions) ([]byte, image.Point, string, error) {
+	if err := guardProcessable(path); err != nil {
+		return nil, image.Point{}, "", err
+	}
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, image.Point{}, "", err
@@ -162,6 +168,30 @@ func Process(path string, opts ProcessOptions) ([]byte, image.Point, string, err
 		return nil, image.Point{}, "", err
 	}
 	return buf.Bytes(), image.Pt(w, h), format, nil
+}
+
+// guardProcessable rejects inputs that cannot be faithfully re-encoded:
+// animated GIFs (only the first frame would be kept) and SVG (no rasterizer).
+// A plain pass-through with no processing flags is unaffected.
+func guardProcessable(path string) error {
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".svg":
+		return fmt.Errorf("%s: svg cannot be re-encoded (no rasterizer); use a raster format", path)
+	case ".gif":
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		g, err := gif.DecodeAll(f)
+		if err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+		if len(g.Image) > 1 {
+			return fmt.Errorf("%s: animated gif (%d frames) cannot be re-encoded; only a single-frame gif is supported", path, len(g.Image))
+		}
+	}
+	return nil
 }
 
 // containFit scales a w x h box to fit within maxW x maxH, preserving aspect

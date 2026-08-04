@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"os"
@@ -116,5 +117,42 @@ func TestProcessQualityBounds(t *testing.T) {
 		if _, _, _, err := Process(p, ProcessOptions{Format: "jpeg", Quality: q}); err != nil {
 			t.Fatalf("quality %d: %v", q, err)
 		}
+	}
+}
+
+func TestProcessAnimatedGifRejected(t *testing.T) {
+	dir := t.TempDir()
+	pal := color.Palette{color.Black, color.White}
+	imgs := []*image.Paletted{
+		image.NewPaletted(image.Rect(0, 0, 4, 4), pal),
+		image.NewPaletted(image.Rect(0, 0, 4, 4), pal),
+	}
+	g := &gif.GIF{Image: imgs, Delay: []int{10, 10}}
+	p := filepath.Join(dir, "anim.gif")
+	f, err := os.Create(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := gif.EncodeAll(f, g); err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+
+	if _, _, _, err := Process(p, ProcessOptions{Format: "jpeg"}); err == nil {
+		t.Fatal("expected animated gif to be rejected, got nil error")
+	}
+	if _, err := ImageDataURI(p); err != nil {
+		t.Fatalf("pass-through inlining of an animated gif should still work: %v", err)
+	}
+}
+
+func TestProcessSvgRejected(t *testing.T) {
+	dir := t.TempDir()
+	p := filepath.Join(dir, "img.svg")
+	if err := os.WriteFile(p, []byte("<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'/>"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, _, err := Process(p, ProcessOptions{Format: "jpeg"}); err == nil {
+		t.Fatal("expected svg to be rejected, got nil error")
 	}
 }
