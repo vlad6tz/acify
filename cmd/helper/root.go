@@ -29,6 +29,7 @@ type options struct {
 	resize       string
 	to           string
 	quality      int
+	fit          bool
 	validateOnly bool
 	inline       bool
 	verbose      bool
@@ -64,6 +65,7 @@ func newRootCmd() *cobra.Command {
 	flags.StringVar(&opts.resize, "resize", "", "downscale the background to fit within WxH, preserving aspect ratio (e.g. 1280x720)")
 	flags.StringVar(&opts.to, "to", "", "re-encode the background image (png or jpeg)")
 	flags.IntVar(&opts.quality, "quality", 85, "jpeg encoder quality (0-100), ignored for png")
+	flags.BoolVar(&opts.fit, "fit", false, "auto-shrink the background until it fits the 256 KiB per-file budget")
 	flags.BoolVar(&opts.validateOnly, "validate-only", false, "validate templates, images, and sizes without writing a zip")
 	flags.BoolVarP(&opts.inline, "inline", "i", false, "print the generated data URIs and CSS instead of writing a zip")
 	flags.BoolVarP(&opts.verbose, "verbose", "v", false, "verbose output")
@@ -108,9 +110,25 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	procOpts := asset.ProcessOptions{MaxW: maxW, MaxH: maxH, Format: opts.to, Quality: opts.quality}
-	bgURI, bgReport, err := asset.Optimize(opts.background, procOpts)
-	if err != nil {
-		return fmt.Errorf("background image: %w", err)
+	bgURI := ""
+	bgReport := ""
+	if opts.fit {
+		budget := validator.MaxStyleBytes - len(css) - 4096
+		var fits bool
+		bgURI, bgReport, fits, err = asset.Fit(opts.background, budget, procOpts)
+		if err != nil {
+			return fmt.Errorf("background image: %w", err)
+		}
+		if !fits {
+			fmt.Fprintf(os.Stderr, "warning: background could not be fitted under %d bytes (smallest %d B)\n",
+				budget, len(bgURI))
+		}
+		fmt.Printf("background: fitted to %s (%d B)\n", bgReport, len(bgURI))
+	} else {
+		bgURI, bgReport, err = asset.Optimize(opts.background, procOpts)
+		if err != nil {
+			return fmt.Errorf("background image: %w", err)
+		}
 	}
 	spURI, err := optionalImage("spinner", opts.spinner)
 	if err != nil {

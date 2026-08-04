@@ -26,6 +26,7 @@ into `<name>-<version>.zip` for manual paste into the detect.ac theme editor.
 | `--resize` | | *(none)* | Downscale the background to fit within `WxH`, e.g. `1280x720` (preserves aspect, never upscales) |
 | `--to` | | *(none)* | Re-encode the background (`png` or `jpeg`) |
 | `--quality` | | `85` | JPEG encoder quality (0-100), ignored for PNG |
+| `--fit` | | `false` | Auto-shrink the background until it fits the 256 KiB budget |
 | `--validate-only` | | `false` | Validate templates/images/sizes, write no zip |
 | `--inline` | `-i` | `false` | Print data URIs + CSS instead of building |
 | `--verbose` | `-v` | `false` | Verbose output |
@@ -41,7 +42,7 @@ into `<name>-<version>.zip` for manual paste into the detect.ac theme editor.
   `--quality` between 0 and 100; `--to` is `png` or `jpeg`; `--resize` is
   `WxH`; `--name` and `--version` feed the zip filename.
 - Suggest `--resize`/`--to`/`--quality` when a large image may not fit the
-  256 KiB per-file budget.
+  256 KiB per-file budget, or `--fit` to let the tool auto-shrink until it does.
 - Spinner rotates by default. Only add `--no-spin` when the user wants a
   non-rotating spinner.
 - Contract: every file stays strictly under 256 KiB; the zip has exactly 3

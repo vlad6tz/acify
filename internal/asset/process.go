@@ -50,6 +50,61 @@ func Optimize(path string, opts ProcessOptions) (uri string, report string, err 
 	return uri, report, nil
 }
 
+// Fit iteratively shrinks quality and dimensions until the data URI fits
+// within budget bytes, or until the smallest reasonable candidate is reached.
+// base carries the starting constraints (resize box, forced format, starting
+// quality). It returns the best candidate found and whether it fits budget.
+func Fit(path string, budget int, base ProcessOptions) (uri string, report string, fits bool, err error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", "", false, err
+	}
+	cfg, _, err := image.DecodeConfig(f)
+	f.Close()
+	if err != nil {
+		return "", "", false, err
+	}
+	w, h := containFit(cfg.Width, cfg.Height, base.MaxW, base.MaxH)
+
+	startQ := base.Quality
+	if startQ <= 0 || startQ > 100 {
+		startQ = 85
+	}
+
+	formats := []string{base.Format}
+	if base.Format == "" {
+		formats = []string{"jpeg", "png"}
+	}
+
+	bestURI, bestReport, bestLen := "", "", -1
+	attempts := 0
+	for {
+		for q := startQ; q >= 30 && attempts < 20; q -= 15 {
+			for _, format := range formats {
+				attempts++
+				opts := base
+				opts.MaxW, opts.MaxH, opts.Quality, opts.Format = w, h, q, format
+				u, r, err := Optimize(path, opts)
+				if err != nil {
+					return "", "", false, err
+				}
+				if len(u) <= budget {
+					return u, r, true, nil
+				}
+				if bestLen < 0 || len(u) < bestLen {
+					bestLen, bestURI, bestReport = len(u), u, r
+				}
+			}
+		}
+		if w <= 4 || h <= 4 || attempts >= 20 {
+			break
+		}
+		w, h = max(1, w/2), max(1, h/2)
+		startQ = 85
+	}
+	return bestURI, bestReport, false, nil
+}
+
 // Process reads the image at path, optionally resizes and re-encodes it, and
 // returns the encoded bytes, the resulting dimensions, and the format the
 // bytes were actually encoded as ("png" or "jpeg").
