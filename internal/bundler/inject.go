@@ -19,7 +19,7 @@ func InjectCSS(css, background, spinner, accent string, overlay float64, rotate 
 	if background != "" {
 		rule := fmt.Sprintf("background-image: linear-gradient(rgba(8,8,10,%.2f), rgba(8,8,10,%.2f)), url(\"%s\");",
 			clamp(overlay), clamp(overlay), background)
-		css = replaceOrAppend(css, markerBackground, "  "+rule, "body { "+rule+" }")
+		css = replaceOrAppend(css, markerBackground, rule, "body { "+rule+" }")
 	} else {
 		css = dropMarker(css, markerBackground)
 	}
@@ -27,12 +27,12 @@ func InjectCSS(css, background, spinner, accent string, overlay float64, rotate 
 	switch {
 	case spinner != "" && rotate:
 		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none;"
-		css = replaceOrAppend(css, markerSpinner, "  "+decl, ".spinner { "+decl+" }")
+		css = replaceOrAppend(css, markerSpinner, decl, ".spinner { "+decl+" }")
 	case spinner != "" && !rotate:
 		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none; animation: none;"
-		css = replaceOrAppend(css, markerSpinner, "  "+decl, ".spinner { "+decl+" }")
+		css = replaceOrAppend(css, markerSpinner, decl, ".spinner { "+decl+" }")
 	case spinner == "" && !rotate:
-		css = replaceOrAppend(css, markerSpinner, "  animation: none;", ".spinner { animation: none; }")
+		css = replaceOrAppend(css, markerSpinner, "animation: none;", ".spinner { animation: none; }")
 	default: // no spinner, rotating -> leave the template wireframe as-is
 		css = dropMarker(css, markerSpinner)
 	}
