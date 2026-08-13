@@ -26,10 +26,10 @@ func InjectCSS(css, background, spinner, accent string, overlay float64, rotate 
 
 	switch {
 	case spinner != "" && rotate:
-		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none; box-shadow: none;"
+		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none;"
 		css = replaceOrAppend(css, markerSpinner, "  "+decl, ".spinner { "+decl+" }")
 	case spinner != "" && !rotate:
-		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none; box-shadow: none; animation: none;"
+		decl := "background: url(\"" + spinner + "\") center/contain no-repeat; border: none; filter: none; animation: none;"
 		css = replaceOrAppend(css, markerSpinner, "  "+decl, ".spinner { "+decl+" }")
 	case spinner == "" && !rotate:
 		css = replaceOrAppend(css, markerSpinner, "  animation: none;", ".spinner { animation: none; }")
