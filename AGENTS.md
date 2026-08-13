@@ -16,6 +16,7 @@ into `<name>-<version>.zip` for manual paste into the detect.ac theme editor.
 | `--background` | `-b` | *(required)* | Path to the background image (`.png` `.jpg` `.jpeg` `.gif` `.webp` `.bmp` `.svg`) |
 | `--spinner` | `-s` | *(none)* | Optional spinner image |
 | `--no-spin` | | `false` | Disable spinner rotation (spins by default) |
+| `--no-sign` | | `false` | Drop the "built with acify" signature comment |
 | `--out` | `-o` | `.` | Directory for the bundle zip |
 | `--templates` | | `templates` | Dir containing `default.{html,css,js}` |
 | `--name` | | `acify` | Theme name (used in the zip filename) |
@@ -45,6 +46,8 @@ into `<name>-<version>.zip` for manual paste into the detect.ac theme editor.
   256 KiB per-file budget, or `--fit` to let the tool auto-shrink until it does.
 - Spinner rotates by default. Only add `--no-spin` when the user wants a
   non-rotating spinner.
+- Add `--no-sign` when the user wants clean files without the "built with
+  acify" signature comment.
 - Contract: every file stays strictly under 256 KiB; the zip has exactly 3
   entries (`theme.html`, `theme.css`, `theme.js`).
 

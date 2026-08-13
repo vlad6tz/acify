@@ -19,6 +19,7 @@ type options struct {
 	background   string
 	spinner      string
 	noSpin       bool
+	noSign       bool
 	out          string
 	templates    string
 	name         string
@@ -55,6 +56,7 @@ func newRootCmd() *cobra.Command {
 	flags.StringVarP(&opts.background, "background", "b", "", "required path to the background image")
 	flags.StringVarP(&opts.spinner, "spinner", "s", "", "optional path to the spinner image")
 	flags.BoolVar(&opts.noSpin, "no-spin", false, "disable spinner rotation")
+	flags.BoolVar(&opts.noSign, "no-sign", false, "drop the 'built with acify' signature comment")
 	flags.StringVarP(&opts.out, "out", "o", ".", "directory in which to drop the bundle zip")
 	flags.StringVar(&opts.templates, "templates", "templates", "directory containing templates/default.{html,css,js}")
 	flags.StringVar(&opts.name, "name", "", "theme name (default: acify)")
@@ -152,9 +154,11 @@ func run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("injected css: %w", err)
 	}
 
-	html = sign("html", html)
-	css = sign("css", css)
-	js = sign("js", js)
+	if !opts.noSign {
+		html = sign("html", html)
+		css = sign("css", css)
+		js = sign("js", js)
+	}
 
 	if err := validator.Size("theme.html", len(html)); err != nil {
 		return err

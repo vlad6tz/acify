@@ -5,7 +5,7 @@ Build custom style bundles for [detect.ac](https://detect.ac) from a background 
 `acify` takes your background image (and optional spinner image), inlines it into the
 default HTML/CSS/JS templates as base64 data URIs, and packs the three files into a zip.
 Each file is signed with the repo URL and stays strictly under the 256 KiB per-file
-limit required by detect.ac.
+limit required by detect.ac. Pass `--no-sign` to drop the signature comment.
 
 ## Requirements
 
@@ -48,6 +48,7 @@ editor manually.
 | `--background` | `-b` | *(required)* | Path to the background image |
 | `--spinner` | `-s` | | Optional spinner image |
 | `--no-spin` | | | Disable spinner rotation (spins by default) |
+| `--no-sign` | | | Drop the "built with acify" signature comment |
 | `--out` | `-o` | `.` | Directory for the bundle zip |
 | `--templates` | | `templates` | Dir containing `default.{html,css,js}` |
 | `--name` | | `acify` | Theme name (used in the zip filename) |
