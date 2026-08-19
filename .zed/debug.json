@@ -1,0 +1,81 @@
+[
+  {
+    "label": "acify: Validate Only",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "debug",
+    "program": "./cmd/helper",
+    "args": [
+      "-b",
+      "testdata/sample.png",
+      "--validate-only",
+      "-v"
+    ]
+  },
+  {
+    "label": "acify: Build Bundle (dist/)",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "debug",
+    "program": "./cmd/helper",
+    "args": [
+      "-b",
+      "testdata/sample.png",
+      "-o",
+      "dist",
+      "-v"
+    ]
+  },
+  {
+    "label": "acify: Fit & Optimize (JPEG 80)",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "debug",
+    "program": "./cmd/helper",
+    "args": [
+      "-b",
+      "testdata/sample.png",
+      "--fit",
+      "--to",
+      "jpeg",
+      "--quality",
+      "80",
+      "-o",
+      "dist",
+      "-v"
+    ]
+  },
+  {
+    "label": "acify: Inline CSS Preview",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "debug",
+    "program": "./cmd/helper",
+    "args": [
+      "-b",
+      "testdata/sample.png",
+      "--inline"
+    ]
+  },
+  {
+    "label": "Debug Tests: Current File",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "test",
+    "program": "$ZED_FILE"
+  },
+  {
+    "label": "Debug Tests: Asset Package",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "test",
+    "program": "./internal/asset"
+  },
+  {
+    "label": "Debug Tests: Validator Package",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "test",
+    "program": "./internal/validator"
+  }
+]

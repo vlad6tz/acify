@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Go: Build CLI (acify.exe)",
+    "command": "go",
+    "args": ["build", "-o", "acify.exe", "./cmd/helper"],
+    "cwd": ".",
+    "use_new_terminal": false,
+    "reveal": "always",
+    "hide": "never"
+  },
+  {
+    "label": "Go: Test All",
+    "command": "go",
+    "args": ["test", "-v", "./..."],
+    "cwd": ".",
+    "use_new_terminal": false,
+    "reveal": "always",
+    "hide": "never"
+  },
+  {
+    "label": "Go: Vet Check",
+    "command": "go",
+    "args": ["vet", "./..."],
+    "cwd": ".",
+    "use_new_terminal": false,
+    "reveal": "always",
+    "hide": "never"
+  },
+  {
+    "label": "acify: Run Self-Check (Sample)",
+    "command": "go",
+    "args": ["run", "./cmd/helper", "-b", "testdata/sample.png", "--validate-only", "-v"],
+    "cwd": ".",
+    "use_new_terminal": false,
+    "reveal": "always",
+    "hide": "never"
+  }
+]
