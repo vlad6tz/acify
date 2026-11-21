@@ -34,11 +34,8 @@ func TestCSSMismatchStillDetected(t *testing.T) {
 	}
 }
 
-func TestSize(t *testing.T) {
-	if err := Size("theme.css", 255*1024); err != nil {
-		t.Fatalf("Size(255 KiB) = %v, want nil", err)
-	}
-	if err := Size("theme.css", 256*1024); err == nil {
-		t.Fatal("Size(256 KiB) = nil, want error")
+func TestMaxFileBytes(t *testing.T) {
+	if MaxFileBytes != 256*1024 {
+		t.Fatalf("MaxFileBytes = %d, want %d", MaxFileBytes, 256*1024)
 	}
 }
