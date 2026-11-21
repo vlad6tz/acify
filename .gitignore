@@ -37,7 +37,7 @@ go.work.sum
 # local theme preview and tests
 /templates/preview.html
 /testdata/
-
+/dist
 # Editor/IDE
 # .idea/
 # .vscode/
