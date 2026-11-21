@@ -14,6 +14,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	_ "golang.org/x/image/bmp"
+	_ "golang.org/x/image/webp"
 )
 
 var extMime = map[string]string{

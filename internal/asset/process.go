@@ -13,7 +13,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	_ "golang.org/x/image/bmp"
 	xdraw "golang.org/x/image/draw" // for CatmullRom scaling
+	_ "golang.org/x/image/webp"
 )
 
 // ProcessOptions controls how an image is re-encoded.
